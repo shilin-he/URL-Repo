@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Add Folder{% endblock %}
+
+{% block content %}
+<div class="span-24">
+    <div class="info">
+        <b>{{ current_folder_path }}</b>
+    </div>
+    <form method="post">
+        <fieldset>
+            <legend>Add Folder</legend>
+            <p>
+                <label for="folder_name">Title</label>
+                <input type="text" id="folder_name" name="folder_name" 
+                    value="{{ folder_name }}" class="text" />
+            </p>
+            <p>
+                <input type="checkbox" id="shared" name="shared"
+                    {% if shared %}checked="checked"{% endif %} />
+                <label for="shared">Share this folder</label>
+            </p>
+            {% if err_msg %}
+            <div class="error">
+                <ul>
+                    {% for err in err_msg %}
+                    <li>{{ err }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <p>
+                <input type="submit" value="Save" />
+                <a href="/my_bookmarks{% if parent_key %}?key={{ parent_key}}{% endif %}">Cancel</a>
+            </p>
+        </fieldset>
+    </form>
+</div>
+{% endblock %}

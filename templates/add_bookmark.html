@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Add Bookmark{% endblock %}
+
+{% block content %}
+<div class="span-24">
+    <div class="info">
+        <b>{{ current_folder_path }}</b>
+    </div>
+    <form method="post">
+        <fieldset>
+            <legend>Add Bookmark</legend>
+            <p>
+                <label for="bm_title">Title</label>
+                <input type="text" id="bm_title" name="bm_title" 
+                    value="{{ bm_title }}" class="text" />
+            </p>
+            <p>
+                <label for="url">URL</label>
+                <input type="text" id="url" name="url" 
+                    value="{{ url }}" class="text" />
+            </p>
+            <p>
+                <input type="checkbox" id="shared" 
+                    name="shared" {% if shared %}checked="checked"{% endif %} />
+                <label for="shared">Share this bookmark</label>
+            </p>
+            {% if err_msg %}
+            <div class="error">
+                <ul>
+                    {% for err in err_msg %}
+                    <li>{{ err }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <p>
+                <input type="submit" value="Save" />
+                <a href="/my_bookmarks?key={{ parent_key }}">Cancel</a>
+            </p>
+        </fieldset>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Bookmarks{% endblock %}
+
+{% block body_attr %}id="tab2"{% endblock %}
+
+{% block menu %}{% include "menu.html" %}{% endblock %}
+
+{% block content %}
+<div class="span-24">
+    <form action="/import" method="post" 
+        enctype="multipart/form-data">
+        <fieldset>
+            <legend>Import/Export Bookmarks</legend>
+            <p>
+                <label for="datafile">Firefox bookmarks backup file</label>
+                <br />
+                <input type="file" id="datafile" 
+                    name="datafile" class="text" />
+            </p>
+            {% if err_msg %}
+            <div class="error">
+                <ul>
+                    {% for err in err_msg %}
+                    <li>{{ err }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <p>
+                <input type="submit" value="Import" />
+                <a href="/export">Export to Firefox bookmarks backup file
+                </a>
+            </p>
+        </fieldset>
+    </form>
+    <form action="/del_all" method="post">
+        <input type="submit" value="Delete All Bookmarks" />
+    </form>
+</div>
+{% endblock %}

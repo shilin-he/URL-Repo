@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>{% block title %}URL Repository{% endblock %}</title>
+    <link rel="stylesheet" href="css/blueprint/screen.css" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="css/blueprint/print.css" type="text/css" media="print" /> 
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="css/tab.css" type="text/css" />
+	{% block head %}{% endblock %}
+</head>
+<body {% block body_attr %}{% endblock %}>
+	<div class="container">
+	    <div class="span-24">
+            <p>
+                <h1>URL Repository</h1>
+            </p>
+            {% block menu %}{% endblock %}
+        </div>	
+        {% block content %}
+        <div class="span-24">Page Content</div>
+        {% endblock %}
+        <div class="span-24">
+        </div>	      
+	</div>	
+</body>
+</html>

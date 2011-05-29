@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookmarks{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" 
+        href="/css/jquery.treeview.css" media="screen" />
+    <script type="text/javascript" 
+        src="http://code.jquery.com/jquery-latest.js">
+    </script>
+	<script type="text/javascript" src="/js/jquery.treeview.min.js"></script> 
+    <script type="text/javascript">
+		$(function () {
+			$("#nav>ul").treeview({
+			    collapsed: true,
+				persist: "location",					
+				unique: true
+			});
+
+            $("#chkAll").change(function () {
+                if ($(this).prop("checked")) {
+                    $("input[name^=cb]").prop("checked", true);
+                } else {
+                   $("input[name^=cb]").prop("checked", false); 
+                }
+            });
+
+            $("#btnDelete").click(function () {
+                if ($("input[name^=cb]:checked").length == 0) {
+                    alert("Please choose the items you want to delete.");
+                    return false;
+                } else {
+                    return confirm('Are you sure you want to delete the checked item(s)?');
+                }
+            });
+		});
+	</script>
+{% endblock head %}
+
+{% block body_attr %}id="tab1"{% endblock %}
+
+{% block menu %}
+    {% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <div id="nav" class="span-8 border">{{ nav }}</div>
+    <div class="span-16 last"> 
+        <form method="post" action="/batch_edit">
+            <input type="hidden" name="item_count" 
+                value="{{ bookmarks.count }}" />
+            <input type="hidden" name="current_folder_key"
+                value="{{ current_folder_key }}" />
+            <table>
+                <thead> 
+                    <th style="width: 20px;">
+                        <input type="checkbox" id="chkAll" name="chkAll" />
+                    </th>
+                    <th>{{ current_folder_path }}</th>
+                    <th></th>
+                </thead>
+                {% for bm in bookmarks %}
+                <tr>
+                    <th>
+                        <input type="checkbox" 
+                            id="cb{{ forloop.counter }}"
+                            name="cb{{ forloop.counter }}" 
+                            value="{{ bm.key|escape }}" />
+                    </th>
+                    <td>
+                        {% if bm.is_folder %}
+                        <image src="/images/folder.png" 
+                            style="vertical-align: bottom;" />
+                        {% endif %}
+                        <a href="{% if bm.is_folder %}/my_bookmarks?key={{ bm.key }}
+                                {% else %}{{ bm.url }}{% endif %}"
+                            target="{% if bm.is_folder %}_self{% else %}_blank
+                                {% endif %}">
+                            {{ bm.title|escape }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% if bm.is_folder %}/edit_folder{% else %}/edit_bookmark{% endif %}?key={{ bm.key}}">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <hr />
+            <p>
+                <input type="submit" value="Delete Checked" 
+                    name="action" id="btnDelete" />
+                <a href="/add_folder?parent_key={{ current_folder_key }}">
+                    Add Folder
+                </a>&nbsp;|&nbsp;
+                <a href="/add_bookmark?parent_key={{ current_folder_key }}">
+                    Add Bookmark
+                </>
+            </p>
+        </form>
+    </div>
+{% endblock %}
+
