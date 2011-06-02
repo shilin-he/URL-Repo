@@ -13,10 +13,13 @@
 </head>
 <body {% block body_attr %}{% endblock %}>
 	<div class="container">
-	    <div class="span-24">
-            <p>
-                <h1>URL Repository</h1>
-            </p>
+	    <div class="span-24" style="margin-top: 20px;">
+            <div class="span-22">
+                <h1>URL Repo</h1>
+            </div>
+            <div class="span-2 last" style="font-weight: bold;">
+                <a href="{{ log_in_or_out_url }}">{{ log_in_or_out_text }}</a>
+            </div>
             {% block menu %}{% endblock %}
         </div>	
         {% block content %}
