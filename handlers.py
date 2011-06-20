@@ -10,12 +10,10 @@ from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 from google.appengine.ext.webapp import template
-from django.utils import simplejson
 from models import *
 import helper
 
 
-json = simplejson
 logging.getLogger().setLevel(logging.DEBUG)
 
 
@@ -23,11 +21,10 @@ class BaseHandler(webapp.RequestHandler):
     def render(self, template_name, context):
         template_path = os.path.join(
             os.path.dirname(__file__), "templates", template_name + ".html")
-        user = users.get_current_user()
-        context["log_in_or_out_url"] = \
-            users.create_logout_url('/') \
-                if user else users.create_login_url('/my_bookmarks')
-        context["log_in_or_out_text"] = "Logout" if user else "Login"
+
+        context['user'] = users.get_current_user()
+        context["login_url"] = users.create_login_url('/my_bookmarks')
+        context["logout_url"] = users.create_logout_url('/') 
             
         self.response.out.write(
             template.render(template_path, context))
@@ -52,38 +49,52 @@ class ImportHandler(BaseHandler):
         err_msg = []
         if not data:
             err_msg.append("Data file is required.")
-        data = re.sub(r',]', ']', data)
-        try:
-            data = json.loads(data, encoding='utf-8')
-        except ValueError:
-            err_msg.append("Invalid data file.")
+        else:
+            file_name = self.request.POST["datafile"].filename
+            file_ext = os.path.splitext(file_name)[1]
+            if file_ext == ".json":
+                data = re.sub(r',]', ']', data)
+                try:
+                    data = json.loads(data, encoding='utf-8')
+                    helper.save_bookmarks(data, None)
+                except ValueError:
+                    err_msg.append("Invalid data file.")
+            elif file_ext in [".htm", ".html"]:
+                try:
+                    data = data.decode('utf-8')
+                    parser = helper.NetscapeBookmarkParser()
+                    parser.feed(data)
+                except Exception, e:
+                    err_msg.append(str(e.args))
+            else:
+                err_msg.append("Wrong file type.")
         if err_msg:
             context = {
                 "err_msg": err_msg,
             }
             self.render("import_export", context)
         else:
-            helper.save_bookmarks(data, None)
             memcache.delete('nav')
             self.redirect('/my_bookmarks')
 
 
-class ExportHandler(webapp.RequestHandler):
+class ExportJSONHandler(webapp.RequestHandler):
     @login_required
     def get(self):
-        bookmarks = {"title": "Bookmarks Menu",
-                     "type": "text/x-moz-place-container",
-                     "root": "bookmarksMenuFolder"}
-        helper.export_bookmarks(None, bookmarks)
-        bookmarks = {"title": "",
-                     "type": "text/x-moz-place-container",
-                     "root": "placesRoot",
-                     "children": [bookmarks,]}
-        output = json.dumps(bookmarks)
+        output = helper.export_to_firefox_json_format() 
         self.response.headers.add_header('content-disposition',
                 'attachment', filename='bookmarks.json')
         self.response.out.write(str(output))
         
+
+class ExportHTMLHandler(webapp.RequestHandler):
+    @login_required
+    def get(self):
+        output = helper.export_to_netscape_format()
+        self.response.headers.add_header('content-disposition',
+                'attachment', filename='bookmarks.htm')
+        self.response.out.write(output)
+
 
 class MyBookmarksHandler(BaseHandler):
     @login_required

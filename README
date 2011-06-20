@@ -1,12 +1,12 @@
 URL Repo is a bookmark manager app which runs on the Google App Engine. 
 
-Currently it supports importing and exporting Firefox bookmark backup files and
-basic bookmark operations (view, add, delete and update). 
+Currently it supports importing and exporting Firefox bookmark backup 
+files (.json) and Netscape Bookmark format files (.htm); Also basic bookmark 
+operations (view, add, delete and update) are supported. 
 
-Future supported functions will include the import / export of IE bookmark 
-backup files, a Firefox Add-on which is used to import the bookmarks from 
-your Firefox and export the bookmarks in your URL Repo account to your local 
-Firefox browser, and more...
+Future supported functions will include a Firefox Add-on which is used to 
+import the bookmarks from your Firefox and export the bookmarks in your 
+URL Repo account to your local Firefox browser, and more...
 
 The code is free to use, modify / enhance in any way you like. 
 Suggestions and contributions would be highly appreciated.

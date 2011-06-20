@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection">
     <![endif]-->
     <link rel="stylesheet" href="css/tab.css" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="/css/jquery.treeview.css" media="screen" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="/js/jquery.treeview.min.js"></script> 
 	{% block head %}{% endblock %}
 </head>
 <body {% block body_attr %}{% endblock %}>
@@ -17,8 +20,12 @@
             <div class="span-22">
                 <h1>URL Repo</h1>
             </div>
-            <div class="span-2 last" style="font-weight: bold;">
-                <a href="{{ log_in_or_out_url }}">{{ log_in_or_out_text }}</a>
+            <div class="span-2 last">
+                {% if user %}
+                <a href="{{ logout_url }}"><b>Logout</b></a>
+                {% else %}
+                <a href="{{ login_url }}"><b>Login</b></a>
+                {% endif %}
             </div>
             {% block menu %}{% endblock %}
         </div>	
@@ -26,6 +33,14 @@
         <div class="span-24">Page Content</div>
         {% endblock %}
         <div class="span-24">
+            <hr />
+            <div class="span-20">
+                <a href="mailto:shilin.he@gmail.com"><b>::: Contact :::</b></a>
+            </div>
+            <div class="span-4 last">
+                <img src="http://code.google.com/appengine/images/appengine-noborder-120x30.gif"
+                    alt="Powered by Google App Engine" />
+            </div>
         </div>	      
 	</div>	
 </body>

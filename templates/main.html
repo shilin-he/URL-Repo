@@ -3,22 +3,31 @@
 {% block content %}
 <div class="span-24">
     <p>
-    URL Repo is a bookmark manager app which runs on the Google App Engine.
+    URL Repo is a bookmark manager app which runs on the
+    <a href="http://code.google.com/appengine/">Google App Engine</a>.
     </p>
     <p>
-    Currently it supports importing and exporting Firefox bookmark backup files and
-    basic bookmark operations (view, add, delete and update). 
-    </p>
+    Currently it supports importing and exporting Firefox bookmark backup 
+    files (.json) and Netscape Bookmark format files (.htm); Also basic bookmark 
+    operations (view, add, delete and update) are supported.
     <p>
-    Future supported functions will include the import / export of IE bookmark 
-    backup files, a Firefox Add-on which is used to import the bookmarks from 
-    your Firefox and export the bookmarks in your URL Repo account to your local 
-    Firefox browser, and more...
+    Future supported functions will include a Firefox Add-on which is used to 
+    import the bookmarks from your Firefox and export the bookmarks in your 
+    URL Repo account to your local Firefox browser, and more...
     </p>
     <p>
     <a href="https://github.com/shilin-he/URL-Repo"><b>The code</b></a>
     is free to use, modify / enhance in any way you like. 
     Suggestions and contributions would be highly appreciated.
+    </p>
+    <p>
+    You can <a href="{{ login_url }}">Login</a> using your Google account to give 
+    a try (just for testing). There is no guarantee that your uploaded data 
+    will be kept in this site permanently. Because I just use the free quota
+    offered by <a href="http://code.google.com/appengine/">Google App Engine</a>
+    and the code is frequently changed. If you want to keep your bookmarks using 
+    the code, you can apply for a <a href="http://code.google.com/appengine/">
+    Google App Engine</a> account for your own use.
     </p>
 </div>
 {% endblock %}

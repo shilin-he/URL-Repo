@@ -10,7 +10,8 @@ def main():
     url_mappings = [
         ('/', MainHandler),
         ('/import', ImportHandler),
-        ('/export', ExportHandler),
+        ('/export_html', ExportHTMLHandler),
+        ('/export_json', ExportJSONHandler),
         ('/del_all', DeleteAllBookmarksHandler),
         ('/my_bookmarks', MyBookmarksHandler),
         ('/add_bookmark', AddBookmarkHandler),
