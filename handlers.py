@@ -5,29 +5,30 @@ import urllib
 import urlparse
 import logging
 import time
+import webapp2
+import jinja2
 from google.appengine.api import users
 from google.appengine.api import memcache
-from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
-from google.appengine.ext.webapp import template
 from models import *
 import helper
 
 
 logging.getLogger().setLevel(logging.DEBUG)
+    
+jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(
+    os.path.join(os.path.dirname(__file__),'templates')))
 
 
-class BaseHandler(webapp.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
     def render(self, template_name, context):
-        template_path = os.path.join(
-            os.path.dirname(__file__), "templates", template_name + ".html")
+        template = jinja_environment.get_template(template_name + ".html")
 
         context['user'] = users.get_current_user()
         context["login_url"] = users.create_login_url('/my_bookmarks')
         context["logout_url"] = users.create_logout_url('/') 
             
-        self.response.out.write(
-            template.render(template_path, context))
+        self.response.out.write(template.render(context))
 
 
 class MainHandler(BaseHandler):
@@ -78,7 +79,7 @@ class ImportHandler(BaseHandler):
             self.redirect('/my_bookmarks')
 
 
-class ExportJSONHandler(webapp.RequestHandler):
+class ExportJSONHandler(webapp2.RequestHandler):
     @login_required
     def get(self):
         output = helper.export_to_firefox_json_format() 
@@ -87,7 +88,7 @@ class ExportJSONHandler(webapp.RequestHandler):
         self.response.out.write(str(output))
         
 
-class ExportHTMLHandler(webapp.RequestHandler):
+class ExportHTMLHandler(webapp2.RequestHandler):
     @login_required
     def get(self):
         output = helper.export_to_netscape_format()
@@ -368,7 +369,7 @@ class BatchEditHandler(BaseHandler):
         self.redirect("/my_bookmarks?key=" + parent_key)
 
 
-class DeleteAllBookmarksHandler(webapp.RequestHandler):
+class DeleteAllBookmarksHandler(webapp2.RequestHandler):
     def post(self):
         while True:
             query = db.GqlQuery(

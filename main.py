@@ -1,27 +1,24 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+import os
+import webapp2
 from handlers import *
 
 
-def main():
-    url_mappings = [
-        ('/', MainHandler),
-        ('/import', ImportHandler),
-        ('/export_html', ExportHTMLHandler),
-        ('/export_json', ExportJSONHandler),
-        ('/del_all', DeleteAllBookmarksHandler),
-        ('/my_bookmarks', MyBookmarksHandler),
-        ('/add_bookmark', AddBookmarkHandler),
-        ('/edit_bookmark', EditBookmarkHandler),
-        ('/add_folder', AddFolderHandler),
-        ('/edit_folder', EditFolderHandler),
-        ('/batch_edit', BatchEditHandler),
-    ]
-    app = webapp.WSGIApplication(url_mappings, debug=True)
-    util.run_wsgi_app(app)
+url_mappings = [
+    ('/', MainHandler),
+    ('/import', ImportHandler),
+    ('/export_html', ExportHTMLHandler),
+    ('/export_json', ExportJSONHandler),
+    ('/del_all', DeleteAllBookmarksHandler),
+    ('/my_bookmarks', MyBookmarksHandler),
+    ('/add_bookmark', AddBookmarkHandler),
+    ('/edit_bookmark', EditBookmarkHandler),
+    ('/add_folder', AddFolderHandler),
+    ('/edit_folder', EditFolderHandler),
+    ('/batch_edit', BatchEditHandler),
+]
 
-if __name__ == '__main__':
-    main()
+app = webapp2.WSGIApplication(url_mappings, debug=True)
+
