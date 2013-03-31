@@ -42,7 +42,7 @@
     <div class="span-16 last"> 
         <form method="post" action="/batch_edit">
             <input type="hidden" name="item_count" 
-                value="{{ bookmarks.count }}" />
+                value="{{ bookmarks.count() }}" />
             <input type="hidden" name="current_folder_key"
                 value="{{ current_folder_key }}" />
             <table>
@@ -57,16 +57,16 @@
                 <tr>
                     <th>
                         <input type="checkbox" 
-                            id="cb{{ loop.counter }}"
-                            name="cb{{ loop.counter }}" 
-                            value="{{ bm.key|escape }}" />
+                            id="cb{{ loop.index }}"
+                            name="cb{{ loop.index }}" 
+                            value="{{ bm.key()|escape }}" />
                     </th>
                     <td>
                         {% if bm.is_folder %}
                         <image src="/images/folder.png" 
                             style="vertical-align: bottom;" />
                         {% endif %}
-                        <a href="{% if bm.is_folder %}/my_bookmarks?key={{ bm.key }}
+                        <a href="{% if bm.is_folder %}/my_bookmarks?key={{ bm.key()}}
                                 {% else %}{{ bm.url }}{% endif %}"
                             target="{% if bm.is_folder %}_self{% else %}_blank
                                 {% endif %}">
@@ -74,7 +74,7 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{% if bm.is_folder %}/edit_folder{% else %}/edit_bookmark{% endif %}?key={{ bm.key}}">Edit</a>
+                        <a href="{% if bm.is_folder %}/edit_folder{% else %}/edit_bookmark{% endif %}?key={{ bm.key()}}">Edit</a>
                     </td>
                 </tr>
                 {% endfor %}
