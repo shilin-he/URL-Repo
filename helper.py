@@ -169,18 +169,21 @@ def get_folder_path(folder):
 
 
 class NetscapeBookmarkParser(HTMLParser):
+    default_url = 'http://www.google.com'
+
     def __init__(self):
         HTMLParser.__init__(self)
         self.last_tag = '' 
-        # the current folder
+        # the current parent folder
         self.parent = None
-        # the current link (bookmark)
+        # the current node 
         self.item = None
         self.user = users.get_current_user()
 
     def handle_starttag(self, tag, attrs):
-        # h3 represents a foller.
+        # h3 tag represents a folder.
         if tag == 'h3':
+            # Use **** as a placeholder, will be replaced in hand_data method.
             self.item = Bookmark(
                             title="***",
                             url=None,
@@ -188,6 +191,7 @@ class NetscapeBookmarkParser(HTMLParser):
                             bm_parent=self.parent,
                             bm_path="***")
 
+        # anchor tag represents a bookmark.
         if tag == 'a':
             url = ''
             for name, val in attrs:
@@ -195,7 +199,7 @@ class NetscapeBookmarkParser(HTMLParser):
                     url = val
                     break
             if not is_url_valid(url):
-                url = 'http://www.google.com'
+                url = self.__class__.default_url
             self.item = Bookmark(
                             title="***",
                             url=url,
@@ -203,7 +207,7 @@ class NetscapeBookmarkParser(HTMLParser):
                             bm_parent=self.parent,
                             bm_path="***")
 
-        # The current tag is a folder.
+        # move down one level of tree.
         if tag == 'dl' and self.last_tag == 'h3':
             self.parent = self.item
 
@@ -211,7 +215,7 @@ class NetscapeBookmarkParser(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == 'dl':
-            # End of the current folder, return to previous level of folder.
+            # move up one level of tree.
             self.parent = self.parent.bm_parent if self.parent else None
 
     def handle_data(self, data):
@@ -224,24 +228,22 @@ class NetscapeBookmarkParser(HTMLParser):
             query = Bookmark.gql(
                 "WHERE bm_path = :1 AND owner = :2 AND is_folder = True", 
                 self.item.bm_path, self.user).fetch(1)
-            bm = query.pop() if query else None
-            if not bm:
+            result = query.pop() if query else None
+            if not result:
                 self.item.save()
             else:
-                # If the folder is already in DB, use it as current folder
-                # and bookmark.
-                self.parent = self.item = bm
-        elif self.last_tag == 'a':
+                # If the folder is already in DB, use it as current node.
+                self.item = result
+        elif self.last_tag == 'a' and \
+                self.item.url != self.__class__.default_url:
             self.item.title = data
             self.item.bm_path = get_bm_path(self.parent, is_folder=False) 
             query = Bookmark.gql(
-                "WHERE bm_path = :1 AND title = :2 AND owner = :3", 
+                "WHERE bm_path = :1 AND title = :2 AND owner = :3 "
+                "AND is_folder = False", 
                 self.item.bm_path, data, self.user).fetch(1)
-            bm = query.pop() if query else None
-            if not bm:
+            result = query.pop() if query else None
+            if not result:
                 self.item.save()
             else:
-                self.item = bm
-            
-
-            
+                self.item = result
