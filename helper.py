@@ -1,14 +1,10 @@
 import cgi
 import urlparse
 import urllib
+import json
 from HTMLParser import HTMLParser
 from models import *
 from google.appengine.api import users
-from django.utils import simplejson
-
-
-json = simplejson
-
 
 def save_bookmarks(data, parent):
     for child in data.get('children', []):
@@ -103,6 +99,12 @@ def export_html(parent):
     bookmarks += "</DL><p>"
     return bookmarks
    
+def is_url_valid(url):
+    scheme, netloc, path, query, fragment = \
+        urlparse.urlsplit(url)
+    if not scheme or not netloc:
+        return False
+    else: return True
 			
 			
 def validate_bookmark_data(data):
@@ -112,9 +114,7 @@ def validate_bookmark_data(data):
     if not data["url"]:
         err_msg.append("URL is required.")
     else:
-        scheme, netloc, path, query, fragment = \
-            urlparse.urlsplit(data["url"])
-        if not scheme or not netloc:
+        if not is_url_valid(data['url']):
             err_msg.append("Invalid URL.")
     return err_msg
 	
@@ -151,6 +151,8 @@ def create_nav_section(parent):
 
 
 def get_bm_path(parent, is_folder=True, title=''):
+    # folder path format: top_folder::[subfolder::]*title
+    # bookmark pathe format: top_folder::[subfolder::]****
     parent_bm_path = parent.bm_path if parent else ""
     if is_folder:
         return parent_bm_path + "::" + title.lower().strip()
@@ -170,11 +172,14 @@ class NetscapeBookmarkParser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
         self.last_tag = '' 
+        # the current folder
         self.parent = None
+        # the current link (bookmark)
         self.item = None
         self.user = users.get_current_user()
 
     def handle_starttag(self, tag, attrs):
+        # h3 represents a foller.
         if tag == 'h3':
             self.item = Bookmark(
                             title="***",
@@ -189,6 +194,8 @@ class NetscapeBookmarkParser(HTMLParser):
                 if name == 'href':
                     url = val
                     break
+            if not is_url_valid(url):
+                url = 'http://www.google.com'
             self.item = Bookmark(
                             title="***",
                             url=url,
@@ -196,13 +203,15 @@ class NetscapeBookmarkParser(HTMLParser):
                             bm_parent=self.parent,
                             bm_path="***")
 
+        # The current tag is a folder.
         if tag == 'dl' and self.last_tag == 'h3':
             self.parent = self.item
 
         self.last_tag = tag
 
     def handle_endtag(self, tag):
-        if tag == 'dl' and self.last_tag in ['h3', 'a']:
+        if tag == 'dl':
+            # End of the current folder, return to previous level of folder.
             self.parent = self.parent.bm_parent if self.parent else None
 
     def handle_data(self, data):
@@ -213,13 +222,15 @@ class NetscapeBookmarkParser(HTMLParser):
             self.item.title = data
             self.item.bm_path = get_bm_path(self.parent, title=data) 
             query = Bookmark.gql(
-                "WHERE bm_path = :1 AND owner = :2", 
+                "WHERE bm_path = :1 AND owner = :2 AND is_folder = True", 
                 self.item.bm_path, self.user).fetch(1)
             bm = query.pop() if query else None
             if not bm:
                 self.item.save()
             else:
-                self.item = bm
+                # If the folder is already in DB, use it as current folder
+                # and bookmark.
+                self.parent = self.item = bm
         elif self.last_tag == 'a':
             self.item.title = data
             self.item.bm_path = get_bm_path(self.parent, is_folder=False) 
